@@ -13,11 +13,13 @@
   },
   "dependencies": {
     "next": "16.2.3",
+    "ramda": "^0.32.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/ramda": "^0.31.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.1.3",

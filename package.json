@@ -12,12 +12,14 @@
     "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "d3": "^7.9.0",
     "next": "16.2.3",
     "ramda": "^0.32.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/ramda": "^0.31.1",
     "@types/react": "^19",

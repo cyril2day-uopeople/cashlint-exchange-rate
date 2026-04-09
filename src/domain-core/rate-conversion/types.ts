@@ -8,6 +8,22 @@ import type {
   PositiveNumber,
 } from '@/domain-core/shared-kernel/types'
 
+export type SpreadType = 'Online' | 'Bank' | 'StreetChanger' | 'Airport'
+
+export type EstimateBidAskCommand = {
+  readonly exchangeRate: ExchangeRate
+  readonly spreadType: SpreadType
+}
+
+export type BidAskEstimate = {
+  readonly midRate: PositiveNumber
+  readonly bidRate: PositiveNumber
+  readonly askRate: PositiveNumber
+  readonly spread: PositiveNumber
+  readonly spreadPercent: number
+  readonly spreadType: SpreadType
+}
+
 export type QuickConvertCommand = {
   readonly amount: PositiveNumber
   readonly fromCurrency: Currency

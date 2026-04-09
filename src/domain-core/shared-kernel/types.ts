@@ -1,4 +1,10 @@
 import { err, ok, type Result } from './result'
+import {
+  createDomainError,
+  createValidationError,
+  type DomainError,
+  type ValidationError,
+} from './errors'
 
 type Brand<T, TBrand extends string> = T & {
   readonly __brand: TBrand
@@ -63,20 +69,6 @@ const SUPPORTED_CURRENCY_CODES = new Set(
   SUPPORTED_CURRENCIES.map((currency) => currency.code),
 )
 
-export type ValidationErrorCode =
-  | 'MustBePositive'
-  | 'MustBeFinite'
-  | 'MustBeNumber'
-  | 'InvalidCurrency'
-  | 'SameCurrencyConversion'
-  | 'InvalidDateRange'
-  | 'FutureDate'
-
-export type ValidationError = {
-  readonly code: ValidationErrorCode
-  readonly field?: string
-}
-
 export function unsafeCreatePositiveNumber(value: number): PositiveNumber {
   return value as PositiveNumber
 }
@@ -89,15 +81,17 @@ export function createPositiveNumber(
   value: number,
 ): Result<PositiveNumber, ValidationError> {
   if (typeof value !== 'number' || Number.isNaN(value)) {
-    return err({ code: 'MustBeNumber' })
+    return err(createValidationError('MustBeNumber', 'Value must be a number'))
   }
 
   if (!Number.isFinite(value)) {
-    return err({ code: 'MustBeFinite' })
+    return err(createValidationError('MustBeFinite', 'Value must be finite'))
   }
 
   if (value <= 0) {
-    return err({ code: 'MustBePositive' })
+    return err(
+      createValidationError('MustBePositive', 'Value must be greater than zero'),
+    )
   }
 
   return ok(unsafeCreatePositiveNumber(value))
@@ -105,11 +99,21 @@ export function createPositiveNumber(
 
 export function createCurrency(code: string): Result<Currency, ValidationError> {
   if (typeof code !== 'string' || !/^[A-Z]{3}$/.test(code)) {
-    return err({ code: 'InvalidCurrency' })
+    return err(
+      createValidationError(
+        'InvalidCurrency',
+        'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+      ),
+    )
   }
 
   if (!SUPPORTED_CURRENCY_CODES.has(code)) {
-    return err({ code: 'InvalidCurrency' })
+    return err(
+      createValidationError(
+        'InvalidCurrency',
+        'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+      ),
+    )
   }
 
   return ok({
@@ -120,9 +124,15 @@ export function createCurrency(code: string): Result<Currency, ValidationError> 
 export function createCurrencyPair(
   base: Currency,
   quote: Currency,
-): Result<CurrencyPair, ValidationError> {
+): Result<CurrencyPair, DomainError> {
   if (base.code === quote.code) {
-    return err({ code: 'SameCurrencyConversion' })
+    return err(
+      createDomainError(
+        'SameCurrencyConversion',
+        'Base and quote currencies must differ',
+        'pair',
+      ),
+    )
   }
 
   return ok({
@@ -140,15 +150,30 @@ export function createDateRange(
   end: Date,
 ): Result<DateRange, ValidationError> {
   if (!isValidDate(start) || !isValidDate(end)) {
-    return err({ code: 'InvalidDateRange' })
+    return err(
+      createValidationError(
+        'InvalidDateRange',
+        'Start date must be on or before end date',
+      ),
+    )
   }
 
   if (start.getTime() > end.getTime()) {
-    return err({ code: 'InvalidDateRange' })
+    return err(
+      createValidationError(
+        'InvalidDateRange',
+        'Start date must be on or before end date',
+      ),
+    )
   }
 
   if (end.getTime() > Date.now()) {
-    return err({ code: 'FutureDate' })
+    return err(
+      createValidationError(
+        'FutureDate',
+        'End date cannot be in the future',
+      ),
+    )
   }
 
   return ok({

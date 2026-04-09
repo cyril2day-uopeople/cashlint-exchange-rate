@@ -15,14 +15,17 @@ import {
   type DateRange,
   type Money,
   type PositiveNumber,
-  type ValidationError,
   unsafeCreateNonNegativeNumber,
   unsafeCreatePositiveNumber,
 } from './types'
+import {
+  createDomainError,
+  createValidationError,
+} from './errors'
 
-function unwrapOk<T>(result: Result<T, ValidationError>): T {
+function unwrapOk<T, E>(result: Result<T, E>): T {
   if (!isOk(result)) {
-    throw new Error(`Expected ok result, got ${result.error.code}`)
+    throw new Error('Expected ok result')
   }
 
   return result.value
@@ -34,7 +37,9 @@ function currencyCode(code: string): CurrencyCode {
 
 describe('positiveNumber', () => {
   it('accepts positive values', () => {
-    expect(createPositiveNumber(42)).toEqual(ok(unsafeCreatePositiveNumber(42)))
+    expect(createPositiveNumber(42)).toEqual(
+      ok(unsafeCreatePositiveNumber(42)),
+    )
   })
 
   it('accepts very small positive values', () => {
@@ -44,27 +49,33 @@ describe('positiveNumber', () => {
   })
 
   it('rejects zero', () => {
-    expect(createPositiveNumber(0)).toEqual(err({ code: 'MustBePositive' }))
+    expect(createPositiveNumber(0)).toEqual(
+      err(createValidationError('MustBePositive', 'Value must be greater than zero')),
+    )
   })
 
   it('rejects negative values', () => {
-    expect(createPositiveNumber(-5)).toEqual(err({ code: 'MustBePositive' }))
+    expect(createPositiveNumber(-5)).toEqual(
+      err(createValidationError('MustBePositive', 'Value must be greater than zero')),
+    )
   })
 
   it('rejects infinity', () => {
     expect(createPositiveNumber(Number.POSITIVE_INFINITY)).toEqual(
-      err({ code: 'MustBeFinite' }),
+      err(createValidationError('MustBeFinite', 'Value must be finite')),
     )
   })
 
   it('rejects negative infinity', () => {
     expect(createPositiveNumber(Number.NEGATIVE_INFINITY)).toEqual(
-      err({ code: 'MustBeFinite' }),
+      err(createValidationError('MustBeFinite', 'Value must be finite')),
     )
   })
 
   it('rejects NaN', () => {
-    expect(createPositiveNumber(Number.NaN)).toEqual(err({ code: 'MustBeNumber' }))
+    expect(createPositiveNumber(Number.NaN)).toEqual(
+      err(createValidationError('MustBeNumber', 'Value must be a number')),
+    )
   })
 })
 
@@ -80,20 +91,55 @@ describe('currency', () => {
   })
 
   it('rejects lowercase currency codes', () => {
-    expect(createCurrency('eur')).toEqual(err({ code: 'InvalidCurrency' }))
+    expect(createCurrency('eur')).toEqual(
+      err(
+        createValidationError(
+          'InvalidCurrency',
+          'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+        ),
+      ),
+    )
   })
 
   it('rejects invalid length codes', () => {
-    expect(createCurrency('EURO')).toEqual(err({ code: 'InvalidCurrency' }))
-    expect(createCurrency('EU')).toEqual(err({ code: 'InvalidCurrency' }))
+    expect(createCurrency('EURO')).toEqual(
+      err(
+        createValidationError(
+          'InvalidCurrency',
+          'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+        ),
+      ),
+    )
+    expect(createCurrency('EU')).toEqual(
+      err(
+        createValidationError(
+          'InvalidCurrency',
+          'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+        ),
+      ),
+    )
   })
 
   it('rejects unknown currencies', () => {
-    expect(createCurrency('XXX')).toEqual(err({ code: 'InvalidCurrency' }))
+    expect(createCurrency('XXX')).toEqual(
+      err(
+        createValidationError(
+          'InvalidCurrency',
+          'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+        ),
+      ),
+    )
   })
 
   it('rejects empty strings', () => {
-    expect(createCurrency('')).toEqual(err({ code: 'InvalidCurrency' }))
+    expect(createCurrency('')).toEqual(
+      err(
+        createValidationError(
+          'InvalidCurrency',
+          'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+        ),
+      ),
+    )
   })
 })
 
@@ -109,7 +155,13 @@ describe('currencyPair', () => {
     const eur = unwrapOk(createCurrency('EUR'))
 
     expect(createCurrencyPair(eur, eur)).toEqual(
-      err({ code: 'SameCurrencyConversion' }),
+      err(
+        createDomainError(
+          'SameCurrencyConversion',
+          'Base and quote currencies must differ',
+          'pair',
+        ),
+      ),
     )
   })
 })
@@ -132,14 +184,23 @@ describe('dateRange', () => {
     const start = new Date('2026-01-31T00:00:00Z')
     const end = new Date('2026-01-01T00:00:00Z')
 
-    expect(createDateRange(start, end)).toEqual(err({ code: 'InvalidDateRange' }))
+    expect(createDateRange(start, end)).toEqual(
+      err(
+        createValidationError(
+          'InvalidDateRange',
+          'Start date must be on or before end date',
+        ),
+      ),
+    )
   })
 
   it('rejects future end dates', () => {
     const start = new Date('2026-01-01T00:00:00Z')
     const end = new Date('2099-01-01T00:00:00Z')
 
-    expect(createDateRange(start, end)).toEqual(err({ code: 'FutureDate' }))
+    expect(createDateRange(start, end)).toEqual(
+      err(createValidationError('FutureDate', 'End date cannot be in the future')),
+    )
   })
 })
 

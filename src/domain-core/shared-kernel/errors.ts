@@ -26,6 +26,8 @@ export type InfrastructureErrorCode =
   | 'ExternalServiceRateLimited'
   | 'ExternalServiceBadRequest'
   | 'UnexpectedResponseShape'
+  | 'UnexpectedError'
+  | 'NoDataForPeriod'
   | 'CacheMiss'
 
 export type ValidationError = {

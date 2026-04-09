@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { err, isOk, ok, type Result } from './result'
+import { err, isOk, ok, type Result } from '@/domain-core/shared-kernel/result'
 import {
   createCurrency,
   createCurrencyPair,
   createDateRange,
+  createPositiveNumber,
   formatMoney,
   invertPair,
-  createPositiveNumber,
   SUPPORTED_CURRENCIES,
   type Currency,
   type CurrencyCode,
@@ -17,11 +17,11 @@ import {
   type PositiveNumber,
   unsafeCreateNonNegativeNumber,
   unsafeCreatePositiveNumber,
-} from './types'
+} from '@/domain-core/shared-kernel/types'
 import {
   createDomainError,
   createValidationError,
-} from './errors'
+} from '@/domain-core/shared-kernel/errors'
 
 function unwrapOk<T, E>(result: Result<T, E>): T {
   if (!isOk(result)) {

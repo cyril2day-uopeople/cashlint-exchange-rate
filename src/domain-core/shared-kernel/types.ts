@@ -1,10 +1,12 @@
-import { err, ok, type Result } from './result'
+import { complement, cond, ifElse, T, test } from 'ramda'
+
+import { err, ok, type Result } from '@/domain-core/shared-kernel/result'
 import {
   createDomainError,
   createValidationError,
   type DomainError,
   type ValidationError,
-} from './errors'
+} from '@/domain-core/shared-kernel/errors'
 
 type Brand<T, TBrand extends string> = T & {
   readonly __brand: TBrand
@@ -69,6 +71,63 @@ const SUPPORTED_CURRENCY_CODES = new Set(
   SUPPORTED_CURRENCIES.map((currency) => currency.code),
 )
 
+function createMustBeNumberResult(): Result<PositiveNumber, ValidationError> {
+  return err(createValidationError('MustBeNumber', 'Value must be a number'))
+}
+
+function createMustBeFiniteResult(): Result<PositiveNumber, ValidationError> {
+  return err(createValidationError('MustBeFinite', 'Value must be finite'))
+}
+
+function createMustBePositiveResult(): Result<PositiveNumber, ValidationError> {
+  return err(
+    createValidationError('MustBePositive', 'Value must be greater than zero'),
+  )
+}
+
+function createPositiveNumberResult(
+  positiveValue: number,
+): Result<PositiveNumber, ValidationError> {
+  return ok(unsafeCreatePositiveNumber(positiveValue))
+}
+
+const isFiniteNumber = complement(Number.isFinite)
+const isPositiveNumber = (value: number) => value > 0
+
+const buildPositiveNumberResult = cond([
+  [Number.isNaN, createMustBeNumberResult],
+  [isFiniteNumber, createMustBeFiniteResult],
+  [(value: number) => !isPositiveNumber(value), createMustBePositiveResult],
+  [T, createPositiveNumberResult],
+]) as (value: number) => Result<PositiveNumber, ValidationError>
+
+const isCurrencyCodeFormat = test(/^[A-Z]{3}$/)
+const isSupportedCurrencyCode = (code: string) => SUPPORTED_CURRENCY_CODES.has(code)
+
+const isCurrencyCodeValid = (code: string) =>
+  isCurrencyCodeFormat(code) && isSupportedCurrencyCode(code)
+
+function createInvalidCurrencyResult(): Result<Currency, ValidationError> {
+  return err(
+    createValidationError(
+      'InvalidCurrency',
+      'Currency code must be a supported 3-letter uppercase ISO 4217 code',
+    ),
+  )
+}
+
+function createCurrencyResult(code: string): Result<Currency, ValidationError> {
+  return ok({
+    code: code as CurrencyCode,
+  })
+}
+
+const buildCurrencyResult = ifElse(
+  isCurrencyCodeValid,
+  createCurrencyResult,
+  createInvalidCurrencyResult,
+)
+
 export function unsafeCreatePositiveNumber(value: number): PositiveNumber {
   return value as PositiveNumber
 }
@@ -80,45 +139,11 @@ export function unsafeCreateNonNegativeNumber(value: number): NonNegativeNumber 
 export function createPositiveNumber(
   value: number,
 ): Result<PositiveNumber, ValidationError> {
-  if (typeof value !== 'number' || Number.isNaN(value)) {
-    return err(createValidationError('MustBeNumber', 'Value must be a number'))
-  }
-
-  if (!Number.isFinite(value)) {
-    return err(createValidationError('MustBeFinite', 'Value must be finite'))
-  }
-
-  if (value <= 0) {
-    return err(
-      createValidationError('MustBePositive', 'Value must be greater than zero'),
-    )
-  }
-
-  return ok(unsafeCreatePositiveNumber(value))
+  return buildPositiveNumberResult(value)
 }
 
 export function createCurrency(code: string): Result<Currency, ValidationError> {
-  if (typeof code !== 'string' || !/^[A-Z]{3}$/.test(code)) {
-    return err(
-      createValidationError(
-        'InvalidCurrency',
-        'Currency code must be a supported 3-letter uppercase ISO 4217 code',
-      ),
-    )
-  }
-
-  if (!SUPPORTED_CURRENCY_CODES.has(code)) {
-    return err(
-      createValidationError(
-        'InvalidCurrency',
-        'Currency code must be a supported 3-letter uppercase ISO 4217 code',
-      ),
-    )
-  }
-
-  return ok({
-    code: code as CurrencyCode,
-  })
+  return buildCurrencyResult(code)
 }
 
 export function createCurrencyPair(

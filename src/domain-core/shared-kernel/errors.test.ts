@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest'
 import {
   createDomainError,
   createInfrastructureError,
+  createValidationError,
   isDomainError,
   isInfrastructureError,
   isValidationError,
-  createValidationError,
   type AppError,
-} from './errors'
+} from '@/domain-core/shared-kernel/errors'
 
 describe('validationError', () => {
   it('creates a tagged validation error with a message only', () => {

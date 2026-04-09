@@ -1,3 +1,5 @@
+import { append, ifElse, reduce } from 'ramda'
+
 export type Ok<T> = {
   readonly ok: true
   readonly value: T
@@ -70,23 +72,20 @@ export function fold<T, E, R>(
   onError: (error: E) => R,
   onSuccess: (value: T) => R,
 ): R {
-  if (isOk(result)) {
-    return onSuccess(result.value)
-  }
-
-  return onError(result.error)
+  return ifElse(
+    isOk,
+    (currentResult: Result<T, E>) => onSuccess((currentResult as Ok<T>).value),
+    (currentResult: Result<T, E>) => onError((currentResult as Err<E>).error),
+  )(result)
 }
 
 export function sequence<T, E>(results: Result<T, E>[]): Result<T[], E> {
-  const values: T[] = []
-
-  for (const result of results) {
-    if (isErr(result)) {
-      return result
-    }
-
-    values.push(result.value)
-  }
-
-  return ok(values)
+  return reduce(
+    (accumulator: Result<T[], E>, currentResult: Result<T, E>): Result<T[], E> =>
+      bind(accumulator, (values) =>
+        map(currentResult, (value) => append(value, values)),
+      ),
+    ok([] as T[]),
+    results,
+  )
 }

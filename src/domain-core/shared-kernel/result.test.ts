@@ -11,7 +11,7 @@ import {
   ok,
   sequence,
   type Result,
-} from './result'
+} from '@/domain-core/shared-kernel/result'
 
 describe('result constructors', () => {
   it('creates an ok result', () => {

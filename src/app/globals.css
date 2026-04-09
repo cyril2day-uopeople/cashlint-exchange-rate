@@ -1,17 +1,17 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #08111d;
+  --foreground: #e5eef9;
+  --muted: #94a3b8;
+  --card: rgba(15, 23, 42, 0.72);
+  --card-border: rgba(148, 163, 184, 0.18);
+  --accent: #5eead4;
+  --accent-strong: #f59e0b;
+  --shadow: 0 24px 80px rgba(2, 6, 23, 0.45);
 }
 
 html {
   height: 100%;
+  color-scheme: dark;
 }
 
 html,
@@ -25,8 +25,11 @@ body {
   display: flex;
   flex-direction: column;
   color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(94, 234, 212, 0.16), transparent 32%),
+    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 30%),
+    linear-gradient(180deg, #08111d 0%, #0b1220 42%, #101827 100%);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +45,7 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+::selection {
+  background: rgba(94, 234, 212, 0.28);
+  color: #f8fafc;
 }

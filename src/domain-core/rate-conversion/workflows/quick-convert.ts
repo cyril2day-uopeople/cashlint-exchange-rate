@@ -1,4 +1,4 @@
-import { divide, multiply, pipe } from 'ramda'
+import { compose, divide, multiply } from 'ramda'
 
 import { err, fold, map, ok, type Result } from '@/domain-core/shared-kernel/result'
 import { type AppError } from '@/domain-core/shared-kernel/errors'
@@ -33,7 +33,7 @@ function calculateConvertedAmount(
 }
 
 function calculateInverseRate(rate: PositiveNumber): PositiveNumber {
-  return pipe(divide(1), unsafeCreatePositiveNumber)(rate)
+  return compose(unsafeCreatePositiveNumber, divide(1))(rate)
 }
 
 function buildConversionResult(
@@ -55,6 +55,14 @@ function buildConversionResult(
   }
 }
 
+function createConversionResult(
+  command: QuickConvertCommand,
+  calculatedAt: Date,
+): (exchangeRate: ExchangeRate) => ConversionResult {
+  return (exchangeRate) =>
+    buildConversionResult(command, exchangeRate, calculatedAt)
+}
+
 async function toFailedResult(
   error: AppError,
 ): Promise<Result<ConversionResult, AppError>> {
@@ -68,8 +76,9 @@ async function convertFetchedRate(
 ): Promise<Result<ConversionResult, AppError>> {
   const exchangeRateResult = await fetchRate(pair)
 
-  return map(exchangeRateResult, (exchangeRate) =>
-    buildConversionResult(command, exchangeRate, new Date()),
+  return map(
+    exchangeRateResult,
+    createConversionResult(command, new Date()),
   )
 }
 

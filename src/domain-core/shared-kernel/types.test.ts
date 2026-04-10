@@ -90,6 +90,14 @@ describe('currency', () => {
     )
   })
 
+  it('accepts PHP as a supported currency', () => {
+    expect(createCurrency('PHP')).toEqual(
+      ok({
+        code: currencyCode('PHP'),
+      }),
+    )
+  })
+
   it('rejects lowercase currency codes', () => {
     expect(createCurrency('eur')).toEqual(
       err(

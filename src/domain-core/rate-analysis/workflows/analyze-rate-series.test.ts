@@ -107,7 +107,7 @@ describe('analyzeRateSeries', () => {
     expect(result.value.volatility.level).toBe('Medium')
     expect(result.value.volatility.value).toBeCloseTo(4.6296296)
     expect(result.value.volatility.interpretation).toBe(
-      'Moderate fluctuation. Consider timing carefully.',
+      'Some movement. Timing could matter.',
     )
     expect(result.value.analyzedAt.getTime()).toBeGreaterThanOrEqual(startedAt)
     expect(result.value.analyzedAt.getTime()).toBeLessThanOrEqual(Date.now())

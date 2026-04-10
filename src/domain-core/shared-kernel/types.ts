@@ -65,6 +65,7 @@ export const SUPPORTED_CURRENCIES: readonly SupportedCurrency[] = [
   { code: 'HKD', name: 'Hong Kong Dollar' },
   { code: 'KRW', name: 'South Korean Won' },
   { code: 'MXN', name: 'Mexican Peso' },
+  { code: 'PHP', name: 'Philippine Peso' },
 ] as const
 
 const SUPPORTED_CURRENCY_CODES = new Set(

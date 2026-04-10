@@ -25,9 +25,9 @@ const LOW_VOLATILITY_THRESHOLD = 2
 const MEDIUM_VOLATILITY_THRESHOLD = 5
 
 const VOLATILITY_INTERPRETATIONS: Record<VolatilityLevel, string> = {
-  Low: 'Rate is stable. Good conditions for conversion.',
-  Medium: 'Moderate fluctuation. Consider timing carefully.',
-  High: 'High volatility. Rate could swing significantly.',
+  Low: 'Steady movement. Good conditions for conversion.',
+  Medium: 'Some movement. Timing could matter.',
+  High: 'Bigger swings. Check again before you decide.',
 }
 
 const isStrengtheningTrend = lt(STABLE_TREND_THRESHOLD)

@@ -1,4 +1,4 @@
-# Cashlint Exchange Rate v3
+# Cashlint Exchange Rate
 
 Cashlint Exchange Rate v3 is a domain-driven, functional Next.js workspace for exchange-rate analysis.
 It is not a generic starter app. The purpose of the workspace is to model exchange-rate behavior clearly,
@@ -68,11 +68,11 @@ pnpm build
 
 ## Current Focus
 
-The current feature set centers on exchange-rate workflows, not UI scaffolding:
+The current feature set centers on an interactive workflow dashboard built on the domain core:
 
 - quick convert
 - bid/ask estimation
 - historical rates
 - rate analysis
 
-Those workflows are the reason this workspace exists.
+Those workflows are the reason this workspace exists, and the homepage is now wired to exercise them directly.

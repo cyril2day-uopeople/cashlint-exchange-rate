@@ -1,5 +1,3 @@
-'use server'
-
 import { createInfrastructureError } from '@/domain-core/shared-kernel/errors'
 import { err, type Result } from '@/domain-core/shared-kernel/result'
 import { errorToDTO, type ErrorDTO } from '@/dtos'

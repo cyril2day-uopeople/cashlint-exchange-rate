@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,9 +13,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Cashlint Exchange Rate v3",
+  title: "Cashlint Exchange Rate",
   description:
     "A domain-driven exchange-rate workspace for conversion, bid/ask estimation, historical data, and analysis.",
+};
+
+export const viewport: Viewport = {
+  themeColor: "#f5f5f7",
 };
 
 export default function RootLayout({
